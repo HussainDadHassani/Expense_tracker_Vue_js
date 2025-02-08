@@ -1,26 +1,66 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <Header />
+  <p>{{ d }}</p>
+  <div class="container">
+    <TotalBalance :total="total" />
+    <IncomExp :income="income" :expense="expense" />
+    <History :transactions= "transactions" @dlt="dlt"/>
+    <AddExpense @sent-data="show" />
+  </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import Header from "./components/HeaderCom.vue";
+import TotalBalance from './components/TotalExpense.vue'
+import History from './components/ExpenseList.vue'
+import AddExpense from './components/AddExpense.vue'
+import IncomExp from './components/IncomeExpense.vue'
+import { ref, computed } from 'vue'
+// ARRAY OF THE TRANSACTION LIST
+const transactions = ref([])
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+// TOTAL
+const total = computed(() => {
+  return transactions.value.reduce((acc, t) => {
+    return acc + t.amount
+  }, 0)
+})
+// INCOME
+const income = computed(() => {
+  return transactions.value.filter(t => t.amount > 0).reduce((acc, t) => {
+    return acc + t.amount
+  }, 0)
+})
+// EXPENSE
+const expense = computed(() => {
+  return transactions.value.filter(t => t.amount < 0).reduce((acc, t) => {
+    return acc + t.amount
+  }, 0)
+})
+// ADDING TRANSACTION
+const d = ref('')
+const show = (data) => {
+  let id = Math.floor(Math.random() * 100000000)
+  const tr = {id: id, name: data.name, amount: data.a}
+  transactions.value.push(tr)
+}
+// DELETING A TRANSCATION FROM LIST
+const dlt = (d) => {
+  transactions.value = transactions.value.filter((tr) => tr.id != d.id)
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family:  Arial, Helvetica, sans-serif;
+}
+
+.container {
+  width: 420px;
 }
 </style>
